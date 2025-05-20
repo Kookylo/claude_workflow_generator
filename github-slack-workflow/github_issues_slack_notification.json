@@ -1,0 +1,191 @@
+{
+  "name": "GitHub Issues to Slack Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "webhookBasic",
+        "events": [
+          "issues"
+        ]
+      },
+      "name": "GitHub Trigger",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "id": "1a88695e-3a64-4025-8c69-7a0ccbc780f2",
+      "notes": "This node triggers the workflow when any GitHub issue event occurs. It uses a webhook that must be configured in your GitHub repository settings."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "equals",
+              "value2": "opened"
+            }
+          ]
+        }
+      },
+      "name": "Only New Issues",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "id": "2b96786f-4b75-4c36-94a7-8b0dfbc99003",
+      "notes": "This node filters GitHub events to only process newly opened issues. Other events like issue comments, updates, or closures will be ignored."
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "title",
+              "value": "={{$json.issue.title}}"
+            },
+            {
+              "name": "issueNumber",
+              "value": "={{$json.issue.number}}"
+            },
+            {
+              "name": "issueUrl",
+              "value": "={{$json.issue.html_url}}"
+            },
+            {
+              "name": "repository",
+              "value": "={{$json.repository.full_name}}"
+            },
+            {
+              "name": "creator",
+              "value": "={{$json.issue.user.login}}"
+            },
+            {
+              "name": "body",
+              "value": "={{$json.issue.body}}"
+            },
+            {
+              "name": "labels",
+              "value": "={{$json.issue.labels}}"
+            },
+            {
+              "name": "assignees",
+              "value": "={{$json.issue.assignees}}"
+            },
+            {
+              "name": "createdAt",
+              "value": "={{$json.issue.created_at}}"
+            },
+            {
+              "name": "slackMessage",
+              "value": "=:warning: *New Issue Created in {{$json.repository.name}}*\n\n*#{{$json.issue.number}}: {{$json.issue.title}}*\nCreated by: {{$json.issue.user.login}}\nCreated at: {{new Date($json.issue.created_at).toLocaleString()}}\n\n{{$json.issue.body ? ($json.issue.body.length > 280 ? $json.issue.body.slice(0, 280) + '...' : $json.issue.body) : 'No description provided'}}\n\n{{$json.issue.labels && $json.issue.labels.length > 0 ? '🏷️ Labels: ' + $json.issue.labels.map(l => l.name).join(', ') : ''}}\n\n<{{$json.issue.html_url}}|View Issue on GitHub>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Format Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ],
+      "id": "3c07897a-5c86-4d47-b9a8-9c0efbd01104",
+      "notes": "This node extracts relevant data from the GitHub issue and formats a message for Slack. It includes issue title, number, creator, creation time, description excerpt, labels, and a direct link to the issue."
+    },
+    {
+      "parameters": {
+        "webhookUrl": "=YOUR_SLACK_WEBHOOK_URL_HERE",
+        "text": "={{$json.slackMessage}}",
+        "otherOptions": {
+          "channel": "#github-issues",
+          "username": "GitHub Issue Bot",
+          "icon_emoji": ":github:"
+        }
+      },
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ],
+      "id": "4d18908b-6d97-4e58-aaa9-ad0fbce02205",
+      "notes": "This node sends the formatted message to Slack using a webhook. Make sure to replace 'YOUR_SLACK_WEBHOOK_URL_HERE' with your actual Slack webhook URL before activating."
+    },
+    {
+      "parameters": {},
+      "id": "5e29a19c-7ea8-4f09-bbba-be0fbcd03306",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        450
+      ],
+      "notes": "This node handles errors that might occur during the workflow execution. You can customize this to send error notifications if needed."
+    }
+  ],
+  "connections": {
+    "GitHub Trigger": {
+      "main": [
+        [
+          {
+            "node": "Only New Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only New Issues": {
+      "main": [
+        [
+          {
+            "node": "Format Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Format Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Slack": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "5e29a19c-7ea8-4f09-bbba-be0fbcd03306"
+  },
+  "tags": ["github", "slack", "notification", "issues"],
+  "pinData": {},
+  "staticData": null,
+  "version": 1,
+  "meta": {
+    "instanceId": "workflow-template",
+    "templateCredsSetupCompleted": false
+  }
+}
