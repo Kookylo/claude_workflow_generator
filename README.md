@@ -10,3 +10,6 @@ This project develops an AI-powered system specialized in creating N8N workflow 
 
 #Learns from example workflows to continuously improve output quality Target Users N8N users with limited technical expertise in workflow configuration Developers seeking to accelerate workflow creation Organizations looking to standardize their automation processes Teams implementing AI agent integrations within their workflows Implementation Approach The system is trained on existing N8N workflow examples with particular emphasis on AI agent modules, ensuring the generated workflows follow current best practices and incorporate the latest N8N features and syntax requirements.
 You can find the n8n templates here: https://github.com/Kookylo/awesome-n8n-templates.git
+
+Disclaimer
+All automation templates in this repository were found online and are uploaded here solely for easy access and sharing. None of the templates are created or owned by the repository author. If you encounter any issues, errors, or damages resulting from the use of these templates, the repository author assumes no responsibility or liability. All rights to the original templates belong to their respective creators
