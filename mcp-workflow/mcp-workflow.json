@@ -1,0 +1,106 @@
+{
+  "name": "MCP Integration Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://codeshiftautomations.online/mcp/workflowmaster/sse",
+        "path": "workflowmaster",
+        "authentication": "none"
+      },
+      "name": "MCP Server Trigger",
+      "type": "n8n-nodes-base.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process the incoming MCP request\nconst mcpRequest = items[0].json;\n\n// Prepare a structured response\nreturn {\n  json: {\n    success: true,\n    payload: {\n      workflow_name: \"MCP Integration Demo\",\n      timestamp: new Date().toISOString(),\n      message: \"Workflow executed successfully\",\n      request_data: mcpRequest\n    }\n  }\n};"
+      },
+      "name": "Process MCP Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "name": "AI Assistant Workflow"
+        },
+        "workflowObject": "{\n  \"name\": \"AI Assistant Workflow\",\n  \"nodes\": [\n    {\n      \"type\": \"trigger\",\n      \"name\": \"Start\",\n      \"position\": [200, 300]\n    },\n    {\n      \"type\": \"action\",\n      \"name\": \"AI Analysis\",\n      \"service\": \"claude\",\n      \"operation\": \"generate\",\n      \"position\": [400, 300]\n    },\n    {\n      \"type\": \"action\",\n      \"name\": \"Format Response\",\n      \"position\": [600, 300]\n    }\n  ],\n  \"connections\": [\n    {\n      \"source\": \"Start\",\n      \"target\": \"AI Analysis\"\n    },\n    {\n      \"source\": \"AI Analysis\",\n      \"target\": \"Format Response\"\n    }\n  ]\n}"
+      },
+      "name": "Create n8n Workflow",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "description": "// This function will generate a workflow based on the request\nfunction generateWorkflow(request) {\n  const prompt = request.prompt || 'Create a simple workflow';\n  \n  // Generate and return a workflow definition\n  return {\n    name: 'Generated Workflow',\n    description: `Workflow generated from prompt: ${prompt}`,\n    workflow: {\n      nodes: [],\n      connections: []\n    }\n  };\n}\n\n// Call this tool if you need to create a workflow\n// Pass the workflow JSON",
+        "source": "database",
+        "workflowStorage": "claude",
+        "workflow": {
+          "name": "Claude Work Flow Builder"
+        },
+        "workflowInputs": {
+          "code": "{{ $json.payload }}"
+        }
+      },
+      "name": "Workflow Coder",
+      "type": "n8n-nodes-base.workflowCoder",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "MCP Server Trigger": {
+      "main": [
+        [
+          {
+            "node": "Process MCP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process MCP Request": {
+      "main": [
+        [
+          {
+            "node": "Create n8n Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create n8n Workflow": {
+      "main": [
+        [
+          {
+            "node": "Workflow Coder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "mcp-workflow-demo"
+}
