@@ -13,6 +13,7 @@ You can find the n8n templates here: https://github.com/Kookylo/awesome-n8n-temp
 
 ## Available Workflows
 
+- **[Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md)** - Automated email follow-up system with a 14-day nurture sequence
 - **[GitHub Issues to Slack Notification](github-slack-workflow/README.md)** - Real-time notifications for new GitHub issues sent to Slack
 - **AI-Generated LinkedIn Posts** - Create engaging LinkedIn content with AI assistance
 - **Blog with AI** - Streamline blog creation using AI tools
