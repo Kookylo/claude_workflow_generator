@@ -1,0 +1,523 @@
+{
+  "name": "Lead Nurture Email Sequence",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-new-lead",
+      "name": "Webhook - New Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "lead-nurture-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "name",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "phone",
+              "name": "phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "source",
+              "name": "source",
+              "value": "={{ $json.source }}",
+              "type": "string"
+            },
+            {
+              "id": "timestamp",
+              "name": "timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "status",
+              "name": "status",
+              "value": "new",
+              "type": "string"
+            },
+            {
+              "id": "leadId",
+              "name": "leadId",
+              "value": "={{ $now.toMillis() }}_{{ $json.email.split('@')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-lead-data",
+      "name": "Set Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "leadId",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "google-sheets-append",
+      "name": "Store in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [650, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Email Sequence Trigger\nThis section handles the automated email sequence:\n- Day 0: Welcome email\n- Day 3: Pain point email\n- Day 7: Case study email\n- Day 14: Final offer email",
+        "height": 200,
+        "width": 400
+      },
+      "id": "sticky-note-emails",
+      "name": "Email Sequence Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [850, 150]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Welcome! Here's What Happens Next",
+        "emailType": "html",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2>Hi {{ $json.name }},</h2>\n<p>Thank you for your interest in our services!</p>\n<p>We're excited to help you solve [specific pain point based on source: {{ $json.source }}].</p>\n<p>Over the next few days, I'll share some valuable insights that our clients have found helpful:</p>\n<ul>\n<li>Common mistakes to avoid</li>\n<li>Quick wins you can implement today</li>\n<li>How we've helped similar businesses</li>\n</ul>\n<p>In the meantime, if you have any urgent questions, feel free to reply to this email.</p>\n<p>Best regards,<br>Your Team</p>\n</div>\n</body>\n</html>",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "send-day0-email",
+      "name": "Send Day 0 Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [850, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "unit": "days",
+        "amount": 3
+      },
+      "id": "wait-3-days",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Set Lead Data').item.json.email }}",
+        "subject": "Quick Question About Your [Service] Needs",
+        "emailType": "html",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2>Hi {{ $('Set Lead Data').item.json.name }},</h2>\n<p>I wanted to follow up and share something that might help.</p>\n<p>We recently worked with a client who was struggling with [specific pain point]. They were losing [specific metric] every month because of [problem].</p>\n<p>Here's what we discovered was causing the issue:</p>\n<ol>\n<li>[Issue 1]</li>\n<li>[Issue 2]</li>\n<li>[Issue 3]</li>\n</ol>\n<p>The good news? These are all fixable problems.</p>\n<p>Would you like to know the simple fix we implemented that turned things around in just 30 days?</p>\n<p>Just reply 'YES' and I'll send you the details.</p>\n<p>Best regards,<br>Your Team</p>\n</div>\n</body>\n</html>",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "send-day3-email",
+      "name": "Send Day 3 Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1250, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "unit": "days",
+        "amount": 4
+      },
+      "id": "wait-4-more-days",
+      "name": "Wait 4 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Set Lead Data').item.json.email }}",
+        "subject": "Case Study: 47% Increase in [Metric]",
+        "emailType": "html",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2>Hi {{ $('Set Lead Data').item.json.name }},</h2>\n<p>I promised to share how we helped a client similar to you. Here's the story:</p>\n<p><strong>The Challenge:</strong><br>\n[Client Industry] was struggling with [specific problem]. They had tried [previous solutions] but nothing worked.</p>\n<p><strong>Our Approach:</strong><br>\nWe implemented our [method name] system which focuses on:</p>\n<ul>\n<li>Step 1: [Description]</li>\n<li>Step 2: [Description]</li>\n<li>Step 3: [Description]</li>\n</ul>\n<p><strong>The Results:</strong></p>\n<ul>\n<li>47% increase in [metric]</li>\n<li>Saved 15 hours per week</li>\n<li>ROI within 60 days</li>\n</ul>\n<p>Would this kind of result make a difference for your business?</p>\n<p>If yes, I'd love to show you exactly how we can customize this for you. Here's my calendar link: [booking link]</p>\n<p>Best regards,<br>Your Team</p>\n</div>\n</body>\n</html>",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "send-day7-email",
+      "name": "Send Day 7 Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1650, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "unit": "days",
+        "amount": 7
+      },
+      "id": "wait-7-more-days",
+      "name": "Wait 7 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1850, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Set Lead Data').item.json.email }}",
+        "subject": "Final Check-In (Special Offer Inside)",
+        "emailType": "html",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n<h2>Hi {{ $('Set Lead Data').item.json.name }},</h2>\n<p>This is my final email in this series, and I wanted to make it count.</p>\n<p>I've shared:</p>\n<ul>\n<li>✓ Common problems in your industry</li>\n<li>✓ How we solve them</li>\n<li>✓ Real results from real clients</li>\n</ul>\n<p>If you're ready to take action, I have a special offer for you:</p>\n<div style=\"background-color: #f0f0f0; padding: 20px; border-radius: 10px; margin: 20px 0;\">\n<h3>Limited Time Offer</h3>\n<p><strong>Free Strategy Session</strong> (Value: $500)</p>\n<p>We'll analyze your current situation and create a custom roadmap for success.</p>\n<p>No obligations, just valuable insights you can use immediately.</p>\n<a href=\"[booking link]\" style=\"display: inline-block; background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;\">Book Your Free Session</a>\n</div>\n<p>This offer expires in 48 hours.</p>\n<p>Even if you decide not to work with us, you'll walk away with actionable strategies.</p>\n<p>Best regards,<br>Your Team</p>\n<p>P.S. If now isn't the right time, no worries. Just reply and let me know when would be better, and I'll follow up then.</p>\n</div>\n</body>\n</html>",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "send-day14-email",
+      "name": "Send Day 14 Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2050, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "sequence_completed"
+          },
+          "matchingColumns": ["email"],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        }
+      },
+      "id": "update-status-completed",
+      "name": "Update Status - Completed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2250, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Lead added to nurture sequence\",\n  \"leadId\": \"{{ $('Set Lead Data').item.json.leadId }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "id": "error-log-sheet",
+      "name": "Log Error to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [450, 700],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Webhook - New Lead": {
+      "main": [
+        [
+          {
+            "node": "Set Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Store in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Day 0 Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Day 0 Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Send Day 3 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Day 3 Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 More Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 More Days": {
+      "main": [
+        [
+          {
+            "node": "Send Day 7 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Day 7 Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 7 More Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 7 More Days": {
+      "main": [
+        [
+          {
+            "node": "Send Day 14 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Day 14 Email": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "lead-nurture-sequence"
+  },
+  "pinData": {},
+  "versionId": "v1.0.0",
+  "triggerCount": 1,
+  "tags": []
+}
