@@ -1,0 +1,109 @@
+{
+  "name": "RSS to Airtable with AI Prompts",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TechCrunch",
+        "options": {}
+      },
+      "id": "rss-trigger",
+      "name": "RSS Feed Reader",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {}
+      },
+      "id": "extract-content",
+      "name": "Extract Article Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate LinkedIn prompt for the article\nconst title = $json.title || 'No title';\nconst content = $json.content || $json.description || 'No content available';\nconst url = $json.link || '';\nconst pubDate = $json.pubDate || new Date().toISOString();\n\n// Create engaging LinkedIn prompt\nconst linkedinPrompt = `Create an engaging LinkedIn post based on this article:\\n\\nTitle: ${title}\\n\\nSummary: ${content.substring(0, 500)}...\\n\\nKey instructions:\\n- Write in a conversational tone\\n- Include relevant hashtags\\n- Ask an engaging question to encourage comments\\n- Keep it under 1300 characters\\n- Make it shareable and valuable\\n\\nSource: ${url}`;\n\nreturn {\n  json: {\n    article_title: title,\n    article_content: content,\n    publication_date: pubDate,\n    source_url: url,\n    linkedin_prompt: linkedinPrompt,\n    processed_date: new Date().toISOString()\n  }\n};"
+      },
+      "id": "generate-prompt",
+      "name": "Generate LinkedIn Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_TABLE_NAME"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Article Title": "={{ $json.article_title }}",
+            "Article Content": "={{ $json.article_content }}",
+            "Publication Date": "={{ $json.publication_date }}",
+            "Source URL": "={{ $json.source_url }}",
+            "LinkedIn Prompt": "={{ $json.linkedin_prompt }}",
+            "Processed Date": "={{ $json.processed_date }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "save-to-airtable",
+      "name": "Save to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "RSS Feed Reader": {
+      "main": [
+        [
+          {
+            "node": "Extract Article Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Article Content": {
+      "main": [
+        [
+          {
+            "node": "Generate LinkedIn Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate LinkedIn Prompt": {
+      "main": [
+        [
+          {
+            "node": "Save to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "timezone": "America/New_York",
+    "executionOrder": "v1"
+  },
+  "versionId": "draft"
+}
