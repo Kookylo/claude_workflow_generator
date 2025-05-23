@@ -17,6 +17,7 @@ Whether you're looking to automate marketing, sales, data processing, or integra
 
 - **[Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md)** - Automated email follow-up system with a 14-day nurture sequence
 - **[AI Email Response Handler](ai-email-response-handler/README.md)** - Intelligent email reply analysis and automated lead qualification
+- **[RSS to Airtable with AI Prompts](rss-to-airtable-ai-prompts/README.md)** - Automatically convert RSS articles to LinkedIn content prompts
 - **[GitHub Issues to Slack Notification](github-slack-workflow/README.md)** - Real-time notifications for new GitHub issues sent to Slack
 - **AI-Generated LinkedIn Posts** - Create engaging LinkedIn content with AI assistance
 - **Blog with AI** - Streamline blog creation using AI tools
