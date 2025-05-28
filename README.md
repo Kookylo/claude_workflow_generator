@@ -13,7 +13,7 @@ This repository contains a growing collection of ready-to-use n8n workflow templ
 
 Whether you're looking to automate marketing, sales, data processing, or integrate AI into your workflows, you'll find useful resources here to accelerate your implementation.
 
-## Available Workflows
+## Recent Workflows
 
 - **[Appointment Reminder System](workflows/harmony-spine-appointment-reminder.json)** - Automated Telegram reminders for upcoming appointments with Airtable integration
 - [Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md) - Automated email follow-up system with a 14-day nurture sequence
