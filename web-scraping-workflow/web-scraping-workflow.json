@@ -1,0 +1,296 @@
+{
+  "name": "Web Scraping Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "authentication": "none",
+        "method": "GET",
+        "sendQuery": true,
+        "sendBody": false,
+        "options": {}
+      },
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        300,
+        300
+      ],
+      "id": "http-request-node"
+    },
+    {
+      "parameters": {
+        "mode": "splitInBatches",
+        "include": "specified",
+        "sourceData": "responseBody",
+        "options": {}
+      },
+      "name": "Split Body From HTTP Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        500,
+        200
+      ],
+      "id": "split-body-node"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "={{$json.body}}",
+        "options": {
+          "destinationFieldName": "items"
+        }
+      },
+      "name": "Split Medium Links - Create Items From Body",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2,
+      "position": [
+        700,
+        200
+      ],
+      "id": "split-items-node"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "authentication": "none",
+        "method": "GET",
+        "sendQuery": true,
+        "sendBody": false,
+        "options": {}
+      },
+      "name": "HTTP Request - Get Wikipedia Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        500,
+        320
+      ],
+      "id": "http-wiki-request"
+    },
+    {
+      "parameters": {
+        "extractionValues": {
+          "values": [
+            {
+              "key": "articleTitle",
+              "cssSelector": "h1#firstHeading",
+              "returnArray": false
+            },
+            {
+              "key": "content",
+              "cssSelector": "div#mw-content-text",
+              "returnArray": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTML Extract - Extract Article Title",
+      "type": "n8n-nodes-base.htmlExtract",
+      "typeVersion": 1,
+      "position": [
+        700,
+        320
+      ],
+      "id": "html-extract-node"
+    },
+    {
+      "parameters": {
+        "value": "1",
+        "name": "startPage",
+        "type": "number"
+      },
+      "name": "Set - Initialize Page Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        500,
+        500
+      ],
+      "id": "set-start-node"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.baseUrl}}?page={{$json.currentPage}}",
+        "authentication": "none",
+        "method": "GET",
+        "sendQuery": true,
+        "sendBody": false,
+        "options": {}
+      },
+      "name": "HTTP Request - Get by Page Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        600,
+        500
+      ],
+      "id": "http-pagination-request"
+    },
+    {
+      "parameters": {
+        "extractionValues": {
+          "values": [
+            {
+              "key": "items",
+              "cssSelector": ".item-list",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Fetch Body - Get Items List",
+      "type": "n8n-nodes-base.htmlExtract",
+      "typeVersion": 1,
+      "position": [
+        700,
+        500
+      ],
+      "id": "fetch-body-node"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.areWeDone}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "IF - Are We Finished?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        800,
+        500
+      ],
+      "id": "if-finished-node"
+    },
+    {
+      "parameters": {
+        "value": "={{$json.currentPage + 1}}",
+        "name": "currentPage",
+        "type": "number"
+      },
+      "name": "Set - Increment Page",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        900,
+        500
+      ],
+      "id": "set-increment-node"
+    }
+  ],
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Body From HTTP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Body From HTTP Response": {
+      "main": [
+        [
+          {
+            "node": "Split Medium Links - Create Items From Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Wikipedia Page": {
+      "main": [
+        [
+          {
+            "node": "HTML Extract - Extract Article Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Initialize Page Counter": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get by Page Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get by Page Number": {
+      "main": [
+        [
+          {
+            "node": "Fetch Body - Get Items List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Body - Get Items List": {
+      "main": [
+        [
+          {
+            "node": "IF - Are We Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Are We Finished?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set - Increment Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Increment Page": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get by Page Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    "web scraping",
+    "pagination",
+    "data extraction"
+  ],
+  "triggerCount": 0,
+  "versionId": "1"
+}

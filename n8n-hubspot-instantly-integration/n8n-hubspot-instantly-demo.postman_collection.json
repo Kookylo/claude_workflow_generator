@@ -1,0 +1,46 @@
+{
+  "info": {
+    "_postman_id": "b6c2b1b9-3c8e-4f3a-8b8b-1b2e8b7d8d6f",
+    "name": "n8n HubSpot-Instanly Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Webhook Test (Auto Sync)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"objectId\": \"contact_12345\",\n  \"subscriptionId\": \"mock_list_567\",\n  \"subscriptionType\": \"contact.listMembership\",\n  \"email\": \"test@company.com\",\n  \"firstname\": \"Jane\",\n  \"lastname\": \"Smith\",\n  \"company\": \"Test Corp\",\n  \"jobtitle\": \"Marketing Director\"\n}"
+        },
+        "url": {
+          "raw": "{{n8n_webhook_url}}",
+          "host": ["{{n8n_webhook_url}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Manual/Batch Sync Test",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contacts\": [\n    {\"email\": \"alice@example.com\", \"firstname\": \"Alice\", \"lastname\": \"Smith\", \"company\": \"Acme Corp\", \"phone\": \"+1234567890\", \"jobtitle\": \"CEO\"}\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{n8n_manual_sync_url}}",
+          "host": ["{{n8n_manual_sync_url}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": []
+}

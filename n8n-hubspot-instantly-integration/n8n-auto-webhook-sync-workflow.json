@@ -1,0 +1,173 @@
+{
+  "name": "HubSpot to Instantly Auto-Sync (Webhook-Based)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "2b9505f8-3d4f-4022-8439-66c27b0b52f6",
+        "options": {}
+      },
+      "id": "08667c0e-5531-47ad-8ee3-976e009ea526",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [ -1160, 80 ],
+      "webhookId": "2b9505f8-3d4f-4022-8439-66c27b0b52f6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "mock-contacts",
+              "name": "mockContacts",
+              "value": "=[{\"id\":\"12345\",\"properties\":{\"email\":\"john.doe@acmecorp.com\",\"firstname\":\"John\",\"lastname\":\"Doe\",\"company\":\"Acme Corp\",\"phone\":\"+1-555-0123\",\"jobtitle\":\"Sales Director\"}},{\"id\":\"12346\",\"properties\":{\"email\":\"sarah.smith@techstart.io\",\"firstname\":\"Sarah\",\"lastname\":\"Smith\",\"company\":\"TechStart Inc\",\"phone\":\"+1-555-0124\",\"jobtitle\":\"Marketing Manager\"}},{\"id\":\"12347\",\"properties\":{\"email\":\"mike.johnson@consultpro.com\",\"firstname\":\"Mike\",\"lastname\":\"Johnson\",\"company\":\"ConsultPro LLC\",\"phone\":\"+1-555-0125\",\"jobtitle\":\"VP of Operations\"}}]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b35544fe-219f-4dac-96f2-509532069899",
+      "name": "Mock HubSpot Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [ -920, 80 ]
+    },
+    {
+      "parameters": { "options": {} },
+      "id": "9fb5d08a-5eb2-43e9-be80-347e0bc39e3f",
+      "name": "Split Into Individual Contacts",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [ -700, 80 ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-contact",
+              "name": "formattedContact",
+              "value": "={\n  \"email\": {{ $json.properties.email }},\n  \"first_name\": {{ $json.properties.firstname || \"\" }},\n  \"last_name\": {{ $json.properties.lastname || \"\" }},\n  \"company_name\": {{ $json.properties.company || \"\" }},\n  \"phone\": {{ $json.properties.phone || \"\" }},\n  \"job_title\": {{ $json.properties.jobtitle || \"\" }},\n  \"hubspot_id\": {{ $json.id }}\n}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "293a9a1b-fc27-4762-b727-97927818c47f",
+      "name": "Format Contact Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [ -480, 80 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [ {} ] },
+        "options": {}
+      },
+      "id": "2c62eb69-3d85-4d83-8c43-835f6bd2a9cc",
+      "name": "Add to Instantly Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ -260, 80 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 1 },
+          "conditions": [
+            {
+              "id": "success-check",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "https://httpbin.org/post",
+              "operator": { "type": "string", "operation": "contains" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "af83d4dc-d20e-40ec-aaed-ade408d14641",
+      "name": "Check if Added Successfully",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [ -40, 80 ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-success",
+              "name": "result",
+              "value": "=Successfully added {{ $('Format Contact Data').item.json.formattedContact.email }} to Instantly campaign",
+              "type": "string"
+            },
+            {
+              "id": "contact-email",
+              "name": "contact_email",
+              "value": "={{ $('Format Contact Data').item.json.formattedContact.email }}",
+              "type": "string"
+            },
+            {
+              "id": "hubspot-id",
+              "name": "hubspot_id",
+              "value": "={{ $('Format Contact Data').item.json.formattedContact.hubspot_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a4fef459-29f7-42a4-9218-92cc1a394804",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [ 180, -20 ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-error",
+              "name": "error",
+              "value": "=Failed to add {{ $('Format Contact Data').item.json.formattedContact.email }} to Instantly: {{ $json.error || 'Unknown error' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "06987839-d7d9-4a37-b33c-c02e37605a8a",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [ 180, 180 ]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [ [ { "node": "Mock HubSpot Data", "type": "main", "index": 0 } ] ] },
+    "Mock HubSpot Data": { "main": [ [ { "node": "Split Into Individual Contacts", "type": "main", "index": 0 } ] ] },
+    "Split Into Individual Contacts": { "main": [ [ { "node": "Format Contact Data", "type": "main", "index": 0 } ] ] },
+    "Format Contact Data": { "main": [ [ { "node": "Add to Instantly Campaign", "type": "main", "index": 0 } ] ] },
+    "Add to Instantly Campaign": { "main": [ [ { "node": "Check if Added Successfully", "type": "main", "index": 0 } ] ] },
+    "Check if Added Successfully": { "main": [ [ { "node": "Log Success", "type": "main", "index": 0 }, { "node": "Log Error", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "50510890-745c-4c7b-91be-1a57ca2e01d7",
+  "meta": { "instanceId": "27ab4b0a051e026aedf1fac3b0d66f801bea9d74bd21543e77c0f271841d9983" },
+  "id": "Bc9fCTx3UBzrCPgq",
+  "tags": []
+}

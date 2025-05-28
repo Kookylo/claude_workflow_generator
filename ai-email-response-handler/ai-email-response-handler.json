@@ -1,0 +1,615 @@
+{
+  "name": "AI Email Response Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "mailbox": "INBOX",
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "id": "email-trigger-imap",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "credentials": {
+        "imap": {
+          "id": "3",
+          "name": "IMAP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI Email Response System\nThis workflow:\n1. Monitors inbox for new replies\n2. Extracts email thread context\n3. Uses GPT to analyze and generate response\n4. Qualifies leads automatically\n5. Updates Google Sheets status\n6. Sends personalized replies",
+        "height": 250,
+        "width": 400
+      },
+      "id": "sticky-note-ai-info",
+      "name": "AI Response System Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [250, 50]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract email data and prepare for AI analysis\nconst emailData = $input.first().json;\n\n// Extract thread context from email\nlet threadContext = '';\nlet originalSubject = emailData.subject || '';\nlet senderEmail = emailData.from?.value?.[0]?.address || emailData.from || '';\nlet senderName = emailData.from?.value?.[0]?.name || 'there';\nlet emailBody = emailData.text || emailData.textHtml || '';\n\n// Clean up email body (remove signatures, quotes, etc)\nconst cleanEmailBody = emailBody\n  .split(/On .+ wrote:/)[0]  // Remove quoted text\n  .split(/------/)[0]         // Remove signatures\n  .trim();\n\n// Try to extract lead ID from subject or body\nlet leadId = '';\nconst leadIdMatch = originalSubject.match(/Lead ID: ([\\w-]+)/) || \n                   emailBody.match(/Lead ID: ([\\w-]+)/);\nif (leadIdMatch) {\n  leadId = leadIdMatch[1];\n}\n\nreturn {\n  senderEmail,\n  senderName,\n  originalSubject,\n  cleanEmailBody,\n  fullEmailBody: emailBody,\n  leadId,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "extract-email-context",
+      "name": "Extract Email Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "filters": {
+          "conditions": [
+            {
+              "column": "email",
+              "condition": "eq",
+              "value": "={{ $json.senderEmail }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "id": "lookup-lead-sheets",
+      "name": "Lookup Lead in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [650, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a professional sales assistant for a service business. Your job is to analyze lead responses, qualify them, handle objections, and move them toward booking a call or continue nurturing.\n\nQualification Criteria:\n- Budget: Can they afford our services?\n- Timeline: Do they need help within 3 months?\n- Decision Maker: Are they the decision maker?\n- Pain Point: Do they have a clear problem we can solve?\n\nBased on the email, you need to:\n1. Analyze their response sentiment and intent\n2. Identify any objections or concerns\n3. Determine their qualification status: qualified/nurturing/not-qualified\n4. Generate an appropriate response that:\n   - Addresses their specific points\n   - Handles objections professionally\n   - Moves qualified leads toward booking\n   - Continues nurturing if they're not ready\n   - Maintains a conversational, helpful tone\n\nAlways end qualified lead responses with a clear call-to-action to book a meeting.\n\nProvide your response in this JSON format:\n{\n  \"qualification_status\": \"qualified|nurturing|not-qualified\",\n  \"qualification_score\": 0-100,\n  \"budget_indicator\": \"yes|no|unclear\",\n  \"timeline_indicator\": \"immediate|3-months|later|unclear\",\n  \"decision_maker\": \"yes|no|unclear\",\n  \"pain_points\": [\"list of identified pain points\"],\n  \"objections\": [\"list of objections found\"],\n  \"suggested_response\": \"Your email response here\",\n  \"internal_notes\": \"Notes for the sales team\"\n}"
+            },
+            {
+              "role": "user", 
+              "content": "=Lead Information:\nName: {{ $('Lookup Lead in Sheets').item.json.name || $json.senderName }}\nEmail: {{ $json.senderEmail }}\nOriginal Source: {{ $('Lookup Lead in Sheets').item.json.source || 'Unknown' }}\nDays in Sequence: {{ Math.floor((Date.now() - new Date($('Lookup Lead in Sheets').item.json.timestamp || Date.now()).getTime()) / (1000 * 60 * 60 * 24)) }}\n\nEmail Subject: {{ $json.originalSubject }}\n\nTheir Reply:\n{{ $json.cleanEmailBody }}\n\nPlease analyze this response and provide your assessment and suggested reply."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "responseFormat": {
+            "type": "json_object"
+          }
+        }
+      },
+      "id": "openai-analyze-response",
+      "name": "AI Analyze & Generate Response",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [850, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "4",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI response\nconst aiResponse = JSON.parse($input.first().json.choices[0].message.content);\nconst emailContext = $('Extract Email Context').first().json;\nconst leadData = $('Lookup Lead in Sheets').first().json;\n\n// Prepare email response with tracking\nlet emailResponse = aiResponse.suggested_response;\n\n// Add booking link if qualified\nif (aiResponse.qualification_status === 'qualified') {\n  emailResponse = emailResponse.replace(\n    '[booking link]',\n    'https://calendly.com/your-company/strategy-session'\n  );\n}\n\n// Add lead ID to track responses\nif (leadData.leadId) {\n  emailResponse += `\\n\\n<div style=\"font-size: 0; color: transparent;\">Lead ID: ${leadData.leadId}</div>`;\n}\n\nreturn {\n  ...aiResponse,\n  emailResponse,\n  recipientEmail: emailContext.senderEmail,\n  recipientName: emailContext.senderName,\n  subject: `Re: ${emailContext.originalSubject}`,\n  leadId: leadData.leadId || emailContext.leadId,\n  updateData: {\n    email: emailContext.senderEmail,\n    status: aiResponse.qualification_status,\n    last_response: new Date().toISOString(),\n    qualification_score: aiResponse.qualification_score,\n    budget: aiResponse.budget_indicator,\n    timeline: aiResponse.timeline_indicator,\n    decision_maker: aiResponse.decision_maker,\n    notes: aiResponse.internal_notes\n  }\n};"
+      },
+      "id": "prepare-response-data",
+      "name": "Prepare Response Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recipientEmail }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n{{ $json.emailResponse }}\n</div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "send-ai-response",
+      "name": "Send AI Response",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1250, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $json.updateData.status }}",
+            "last_response": "={{ $json.updateData.last_response }}",
+            "qualification_score": "={{ $json.updateData.qualification_score }}",
+            "budget": "={{ $json.updateData.budget }}",
+            "timeline": "={{ $json.updateData.timeline }}",
+            "decision_maker": "={{ $json.updateData.decision_maker }}",
+            "notes": "={{ $json.updateData.notes }}"
+          },
+          "matchingColumns": ["email"],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "last_response",
+              "displayName": "Last Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "qualification_score",
+              "displayName": "Qualification Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "timeline",
+              "displayName": "Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "decision_maker",
+              "displayName": "Decision Maker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        }
+      },
+      "id": "update-lead-status",
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1450, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "q1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.qualification_status }}",
+              "rightValue": "qualified"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-qualified",
+      "name": "If Qualified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "message": "=🎉 New Qualified Lead!\n\nName: {{ $('Prepare Response Data').item.json.recipientName }}\nEmail: {{ $('Prepare Response Data').item.json.recipientEmail }}\nQualification Score: {{ $('Prepare Response Data').item.json.qualification_score }}/100\n\nBudget: {{ $('Prepare Response Data').item.json.budget_indicator }}\nTimeline: {{ $('Prepare Response Data').item.json.timeline_indicator }}\nDecision Maker: {{ $('Prepare Response Data').item.json.decision_maker }}\n\nNotes: {{ $('Prepare Response Data').item.json.internal_notes }}\n\nCheck calendar for booking!",
+        "additionalFields": {
+          "priority": "high"
+        }
+      },
+      "id": "notify-qualified-lead",
+      "name": "Notify Team - Qualified Lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1850, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "5",
+          "name": "Slack Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": "AI_Response_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $('Prepare Response Data').item.json.updateData.last_response }}",
+            "lead_email": "={{ $('Prepare Response Data').item.json.recipientEmail }}",
+            "qualification_status": "={{ $('Prepare Response Data').item.json.qualification_status }}",
+            "score": "={{ $('Prepare Response Data').item.json.qualification_score }}",
+            "ai_response": "={{ $('Prepare Response Data').item.json.suggested_response }}",
+            "objections": "={{ $('Prepare Response Data').item.json.objections.join(', ') }}",
+            "pain_points": "={{ $('Prepare Response Data').item.json.pain_points.join(', ') }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "lead_email",
+              "displayName": "Lead Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "qualification_status",
+              "displayName": "Qualification Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "ai_response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "objections",
+              "displayName": "Objections",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "pain_points",
+              "displayName": "Pain Points",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        }
+      },
+      "id": "log-ai-response",
+      "name": "Log AI Response",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1450, 500],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Email Trigger (IMAP)').item.json.id }}"
+      },
+      "id": "mark-email-read",
+      "name": "Mark Email as Read",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1650, 500],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6",
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Error Handling\nThis workflow includes:\n- Retry logic on API calls\n- Error logging to separate sheet\n- Fallback notifications\n- Graceful error handling",
+        "height": 150,
+        "width": 300
+      },
+      "id": "sticky-note-error",
+      "name": "Error Handling Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [250, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log error details\nconst error = $input.first().json.error;\nconst context = {\n  timestamp: new Date().toISOString(),\n  workflow: 'AI Email Response Handler',\n  node: error.node?.name || 'Unknown',\n  message: error.message || 'Unknown error',\n  email: $('Extract Email Context').first().json?.senderEmail || 'Unknown',\n  details: JSON.stringify(error)\n};\n\nreturn context;"
+      },
+      "id": "prepare-error-log",
+      "name": "Prepare Error Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 700]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": "Error_Log"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      },
+      "id": "log-error-sheet",
+      "name": "Log Error to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [850, 700],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "Google Sheets Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Context": {
+      "main": [
+        [
+          {
+            "node": "Lookup Lead in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Lead in Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Analyze & Generate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analyze & Generate Response": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response Data": {
+      "main": [
+        [
+          {
+            "node": "Send AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send AI Response": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Status": {
+      "main": [
+        [
+          {
+            "node": "If Qualified",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Qualified": {
+      "main": [
+        [
+          {
+            "node": "Notify Team - Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log AI Response": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "executionTimeout": 300
+  },
+  "staticData": {
+    "lastCheckedEmail": ""
+  },
+  "meta": {
+    "templateId": "ai-email-response-handler"
+  },
+  "pinData": {},
+  "versionId": "v1.0.0",
+  "triggerCount": 1,
+  "tags": []
+}

@@ -1,0 +1,153 @@
+{
+  "name": "HubSpot to Instantly Manual/Scheduled Sync",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "alice@example.com" },
+            { "name": "firstname", "value": "Alice" },
+            { "name": "lastname", "value": "Smith" },
+            { "name": "company", "value": "Acme Corp" },
+            { "name": "phone", "value": "+1234567890" },
+            { "name": "jobtitle", "value": "CEO" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-mock-hubspot-contacts",
+      "name": "Set Mock HubSpot Contacts",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => ({json: {\n  formattedContact: {\n    email: item.json.email,\n    first_name: item.json.firstname || \"\",\n    last_name: item.json.lastname || \"\",\n    company_name: item.json.company || \"\",\n    phone: item.json.phone || \"\",\n    job_title: item.json.jobtitle || \"\",\n    hubspot_id: item.json.id || \"mock-id\"\n  }\n}}));"
+      },
+      "id": "format-contact-data",
+      "name": "Format Contact Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.instantly.ai/api/v1/lead/add",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "api_key", "value": "YOUR_INSTANTLY_API_KEY" },
+            { "name": "campaign_id", "value": "YOUR_INSTANTLY_CAMPAIGN_ID" },
+            { "name": "email", "value": "={{ $json.formattedContact.email }}" },
+            { "name": "first_name", "value": "={{ $json.formattedContact.first_name }}" },
+            { "name": "last_name", "value": "={{ $json.formattedContact.last_name }}" },
+            { "name": "company_name", "value": "={{ $json.formattedContact.company_name }}" },
+            { "name": "personalization_1", "value": "={{ $json.formattedContact.job_title }}" },
+            { "name": "personalization_2", "value": "={{ $json.formattedContact.hubspot_id }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "add-to-instantly",
+      "name": "Add to Instantly Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-success",
+              "name": "result",
+              "value": "=Successfully added {{ $json.formattedContact.email }} to Instantly campaign",
+              "type": "string"
+            },
+            {
+              "id": "contact-email",
+              "name": "contact_email",
+              "value": "={{ $json.formattedContact.email }}",
+              "type": "string"
+            },
+            {
+              "id": "hubspot-id",
+              "name": "hubspot_id",
+              "value": "={{ $json.formattedContact.hubspot_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-success",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1120, 240]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-error",
+              "name": "error",
+              "value": "=Failed to add {{ $json.formattedContact.email }} to Instantly: {{ $json.error || 'Unknown error' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-error",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1120, 360]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [{ "node": "Set Mock HubSpot Contacts", "type": "main", "index": 0 }]
+      ]
+    },
+    "Set Mock HubSpot Contacts": {
+      "main": [
+        [{ "node": "Format Contact Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format Contact Data": {
+      "main": [
+        [{ "node": "Add to Instantly Campaign", "type": "main", "index": 0 }]
+      ]
+    },
+    "Add to Instantly Campaign": {
+      "main": [
+        [{ "node": "Log Success", "type": "main", "index": 0 }, { "node": "Log Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "manual-scheduled-sync-v1"
+}
