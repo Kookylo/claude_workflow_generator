@@ -15,14 +15,15 @@ Whether you're looking to automate marketing, sales, data processing, or integra
 
 ## Available Workflows
 
-- **[Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md)** - Automated email follow-up system with a 14-day nurture sequence
-- **[AI Email Response Handler](ai-email-response-handler/README.md)** - Intelligent email reply analysis and automated lead qualification
-- **[RSS to Airtable with AI Prompts](rss-to-airtable-ai-prompts/README.md)** - Prepare RSS content for ChatGPT to create LinkedIn posts
-- **[GitHub Issues to Slack Notification](github-slack-workflow/README.md)** - Real-time notifications for new GitHub issues sent to Slack
-- **AI-Generated LinkedIn Posts** - Create engaging LinkedIn content with AI assistance
-- **Blog with AI** - Streamline blog creation using AI tools
-- **Personalized AI Newsletter** - Create custom newsletters with AI-curated content
-- **Viral TikToks** - Generate ideas and scripts for viral TikTok content
+- **[Appointment Reminder System](workflows/harmony-spine-appointment-reminder.json)** - Automated Telegram reminders for upcoming appointments with Airtable integration
+- [Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md) - Automated email follow-up system with a 14-day nurture sequence
+- [AI Email Response Handler](ai-email-response-handler/README.md) - Intelligent email reply analysis and automated lead qualification
+- [RSS to Airtable with AI Prompts](rss-to-airtable-ai-prompts/README.md) - Prepare RSS content for ChatGPT to create LinkedIn posts
+- [GitHub Issues to Slack Notification](github-slack-workflow/README.md) - Real-time notifications for new GitHub issues sent to Slack
+- [AI-Generated LinkedIn Posts](ai-linkedin-posts/README.md) - Create engaging LinkedIn content with AI assistance
+- [Blog with AI](blog-with-ai/README.md) - Streamline blog creation using AI tools
+- [Personalized AI Newsletter](ai-newsletter/README.md) - Create custom newsletters with AI-curated content
+- [Viral TikToks](viral-tiktoks/README.md) - Generate ideas and scripts for viral TikTok content
 
 ## How to Use These Templates
 

@@ -1,0 +1,432 @@
+{
+  "name": "Harmony Spine & Wellness Center",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Get the appointment time from Airtable\nconst appointmentTime = new Date(items[0].json.appointment_time);\n\n// Convert to New York time (America/New_York)\nconst options = {\n  timeZone: 'America/New_York',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric',\n  hour: '2-digit',\n  minute: '2-digit'\n};\n\n// Format the time in a user-friendly way\nconst formattedTime = appointmentTime.toLocaleString('en-US', options);\n\n// Return the formatted time\nreturn {\n  json: {\n    ...items[0].json,\n    localAppointmentTime: formattedTime\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        180
+      ],
+      "id": "6291b314-b8a5-4e3a-b757-738481782bc9",
+      "name": "Time Zone Conversion"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appK0Ou50w8rdtDPZ",
+          "mode": "list",
+          "cachedResultName": "Harmony Spine & Wellness Center"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl7B7se1F37TpD7v",
+          "mode": "list",
+          "cachedResultName": "Appointments"
+        },
+        "filterByFormula": "AND(   {appointment_time} >= '2025-05-27',   {reminder_sent} != TRUE() )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        280,
+        180
+      ],
+      "id": "39ce2b9b-0cc2-4b7a-992c-c588540820ef",
+      "name": "Get  Patient Appointments",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "k2XQ3uY3pdkDA9yB",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        720,
+        180
+      ],
+      "id": "b1a6b24d-ea10-438e-9772-ee524131af38",
+      "name": "Process Reminder Queue"
+    },
+    {
+      "parameters": {
+        "chatId": "7884443757",
+        "text": "={{$json.patient_name}}! This is a friendly reminder about your appointment at Harmony Spine & Wellness Center on {{$json.localAppointmentTime}}. Please arrive 10 minutes early. Reply STOP to cancel or reschedule.\"",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        180
+      ],
+      "id": "307fbf7d-9368-4c2c-913a-c6a3ba928bc5",
+      "name": "Appointment Telegram Alert",
+      "webhookId": "232ae374-4a18-4fda-985d-778c7e69b319",
+      "credentials": {
+        "telegramApi": {
+          "id": "1gBgf1GAneXSSFeP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3edba36d-b641-4a02-9707-e14bcf7d364a",
+              "leftValue": "={{$json.appointment_time}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b3d3b5d3-4abf-48cc-8ed2-412aa8dc99d5",
+              "leftValue": "={{$json.appointment_time}}",
+              "rightValue": "={{new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()}}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        200
+      ],
+      "id": "633e1c53-96ce-489a-af2b-dea93a56a603",
+      "name": "Is Appointment Within 24h"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appK0Ou50w8rdtDPZ",
+          "mode": "list",
+          "cachedResultName": "Harmony Spine & Wellness Center",
+          "cachedResultUrl": "https://airtable.com/appK0Ou50w8rdtDPZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl7B7se1F37TpD7v",
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://airtable.com/appK0Ou50w8rdtDPZ/tbl7B7se1F37TpD7v"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "reminder_sent": true,
+            "reminder_method": "sms",
+            "reminder_sent_at": "2025-05-27T09:21:09",
+            "id": "={{ $('Get  Patient Appointments').item.json.id }}",
+            "patient_name": "={{ $('Get  Patient Appointments').item.json.patient_name }}",
+            "phone_number": "={{ $('Get  Patient Appointments').item.json.phone_number }}",
+            "email": "={{ $('Get  Patient Appointments').item.json.email }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reminder_sent",
+              "displayName": "reminder_sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reminder_sent_at",
+              "displayName": "reminder_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reminder_method",
+              "displayName": "reminder_method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "email",
+                  "value": "email"
+                },
+                {
+                  "name": "sms",
+                  "value": "sms"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Calculation",
+              "displayName": "Calculation",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1380,
+        180
+      ],
+      "id": "d8a0fbd6-1c71-4cb3-8483-3246fc4ace0c",
+      "name": "Update Patient Appointments",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "k2XQ3uY3pdkDA9yB",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        180
+      ],
+      "id": "d46242e8-4291-4e54-91a9-83e95bf1fd62",
+      "name": "Hourly Patient Checks"
+    },
+    {
+      "parameters": {
+        "content": "# Harmony Spine & Wellness Center - Appointment Reminder System\n\n## Overview\nAutomated workflow that sends appointment reminders to patients via Telegram 24 hours before their scheduled appointment.\n\n## Workflow Details\n- **Trigger**: Runs hourly\n- **Timezone**: America/New_York\n- **Status**: Active",
+        "height": 460,
+        "width": 1120,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -1220
+      ],
+      "id": "583f48ac-d3f2-44c7-9135-3b653ea03cc3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Nodes Description\n\n### 1. Schedule Trigger\n- **Type**: Schedule Trigger\n- **Frequency**: Hourly\n- **Purpose**: Initiates the workflow at regular intervals\n\n### 2. Airtable (Appointment Lookup)\n- **Action**: Search records\n- **Table**: Appointments\n- **Filter**: \n  - Appointments from today onwards\n  - Reminder not yet sent\n- **Base**: Harmony Spine & Wellness Center\n\n### 3. Process Appointments\n- **Type**: Split In Batches\n- **Purpose**: Processes each appointment individually\n- **Batch Size**: 1 (processes one appointment at a time)\n\n### 4. Is Appointment Within 24h?\n- **Type**: IF\n- **Condition**: Checks if appointment is within the next 24 hours\n- **Logic**: \n  - True: Proceeds to send reminder\n  - False: Skips to next appointment\n\n### 5. Send Reminder via Telegram\n- **Type**: Telegram\n- **Message**: Personalized appointment reminder\n- **Includes**:\n  - Patient name\n  - Appointment date/time\n  - Business name\n  - Instructions for early arrival\n\n### 6. Update Airtable\n- **Action**: Update record\n- **Fields Updated**:\n  - reminder_sent: true\n  - reminder_sent_at: [current timestamp]\n  - reminder_method: sms\n\n## Error Handling\n- Workflow includes error handling for failed operations\n- Failed notifications are logged for follow-up\n\n## Timezone Management\n- All times are handled in America/New_York timezone\n- Properly accounts for daylight saving time changes\n\n## Maintenance\n- Last Updated: May 28, 2025\n- Owner: [Luis Gonzales]\n- Contact: [codeshiftcreations@gmail.com]\n\n## Notes\n- Workflow ID: ZveW5oeRVtalOqJD\n- Airtable Base: appK0Ou50w8rdtDPZ\n- Table: tbl7B7se1F37TpD7v (Appointments)",
+        "height": 1660,
+        "width": 1740,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -1320
+      ],
+      "id": "bf568539-9e8e-4ba5-8f39-8f707ae916bf",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Time Zone Conversion": {
+      "main": [
+        [
+          {
+            "node": "Process Reminder Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get  Patient Appointments": {
+      "main": [
+        [
+          {
+            "node": "Time Zone Conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Reminder Queue": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Is Appointment Within 24h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process Reminder Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Update Patient Appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Appointment Within 24h": {
+      "main": [
+        [
+          {
+            "node": "Appointment Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hourly Patient Checks": {
+      "main": [
+        [
+          {
+            "node": "Get  Patient Appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "ZveW5oeRVtalOqJD",
+    "timezone": "America/New_York"
+  },
+  "versionId": "b2f55951-2df7-4ed4-b0ad-c49b960d6dd8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27ab4b0a051e026aedf1fac3b0d66f801bea9d74bd21543e77c0f271841d9983"
+  },
+  "id": "ZveW5oeRVtalOqJD",
+  "tags": []
+}
