@@ -19,13 +19,13 @@
         "operation": "search",
         "base": {
           "__rl": true,
-          "value": "appK0Ou50w8rdtDPZ",
+          "value": "YOUR_AIRTABLE_BASE_ID",
           "mode": "list",
           "cachedResultName": "Harmony Spine & Wellness Center"
         },
         "table": {
           "__rl": true,
-          "value": "tbl7B7se1F37TpD7v",
+          "value": "YOUR_TABLE_ID",
           "mode": "list",
           "cachedResultName": "Appointments"
         },
@@ -42,7 +42,7 @@
       "name": "Get  Patient Appointments",
       "credentials": {
         "airtableTokenApi": {
-          "id": "k2XQ3uY3pdkDA9yB",
+          "id": "",
           "name": "Airtable Personal Access Token account"
         }
       }
@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "chatId": "7884443757",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{$json.patient_name}}! This is a friendly reminder about your appointment at Harmony Spine & Wellness Center on {{$json.localAppointmentTime}}. Please arrive 10 minutes early. Reply STOP to cancel or reschedule.\"",
         "additionalFields": {}
       },
@@ -79,7 +79,7 @@
       "webhookId": "232ae374-4a18-4fda-985d-778c7e69b319",
       "credentials": {
         "telegramApi": {
-          "id": "1gBgf1GAneXSSFeP",
+          "id": "",
           "name": "Telegram account"
         }
       }
@@ -132,14 +132,14 @@
         "operation": "update",
         "base": {
           "__rl": true,
-          "value": "appK0Ou50w8rdtDPZ",
+          "value": "YOUR_AIRTABLE_BASE_ID",
           "mode": "list",
           "cachedResultName": "Harmony Spine & Wellness Center",
           "cachedResultUrl": "https://airtable.com/appK0Ou50w8rdtDPZ"
         },
         "table": {
           "__rl": true,
-          "value": "tbl7B7se1F37TpD7v",
+          "value": "YOUR_TABLE_ID",
           "mode": "list",
           "cachedResultName": "Appointments",
           "cachedResultUrl": "https://airtable.com/appK0Ou50w8rdtDPZ/tbl7B7se1F37TpD7v"
@@ -283,7 +283,7 @@
       "name": "Update Patient Appointments",
       "credentials": {
         "airtableTokenApi": {
-          "id": "k2XQ3uY3pdkDA9yB",
+          "id": "",
           "name": "Airtable Personal Access Token account"
         }
       }
