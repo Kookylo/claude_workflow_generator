@@ -1,8 +1,21 @@
-# HubSpot ↔ Instantly Integration Workflows (n8n)
+# HubSpot to Instantly Integration
 
-This folder contains ready-to-use n8n workflows and documentation for integrating HubSpot and Instantly.ai, supporting both manual/scheduled and automatic real-time syncing of contacts.
+**Version 1.0** | n8n Workflows for Cold Email Outreach Automation
 
----
+## Overview
+
+Sync HubSpot contacts to Instantly.ai automatically. Two workflows handle real-time webhook syncing and scheduled batch imports — no manual CSV exports required.
+
+**What's included:**
+
+1. **Auto Webhook Sync** – Real-time contact sync when added to HubSpot lists
+2. **Manual/Scheduled Sync** – Batch sync for initial setup or periodic updates
+
+## Requirements
+
+- n8n instance (self-hosted or cloud)
+- HubSpot account with API access
+- Instantly.ai account with API access
 
 ## Workflows Included
 
