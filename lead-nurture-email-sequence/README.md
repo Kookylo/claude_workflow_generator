@@ -1,24 +1,32 @@
 # Lead Nurture Email Sequence
 
-This automated email follow-up system uses n8n workflow automation to nurture leads through a strategic email sequence over a 14-day period.
+**Version 1.0** | n8n Workflow for Automated Lead Follow-Up
 
-## Features
+## Overview
 
-- **Webhook Integration**: Captures new leads via a webhook endpoint
-- **Data Processing**: Structures and stores lead data
-- **Google Sheets Integration**: Maintains lead records in a spreadsheet
-- **Automated Email Sequence**:
-  - Day 0: Welcome email
-  - Day 3: Pain point email
-  - Day 7: Case study email
-  - Day 14: Final offer email with call-to-action
-- **Status Tracking**: Updates lead status upon sequence completion
+Stop manually following up with leads. This workflow captures new leads via webhook, stores them in Google Sheets, and automatically sends a 4-email nurture sequence over 14 days.
 
-## Setup Requirements
+**What it does:**
 
-- n8n instance
+1. **Webhook capture** – Receives lead data (name, email, phone, source)
+2. **Google Sheets storage** – Logs all leads with timestamps and status
+3. **Automated email sequence** – Sends 4 emails at strategic intervals
+4. **Status tracking** – Updates lead status after sequence completion
+
+## Email Sequence
+
+| Day | Email Type | Purpose |
+|-----|------------|---------|
+| Day 0 | Welcome | Immediate acknowledgment and value proposition |
+| Day 3 | Pain Point | Address common challenges and position solution |
+| Day 7 | Case Study | Social proof and success stories |
+| Day 14 | Final Offer | Clear call-to-action with urgency |
+
+## Requirements
+
+- n8n instance (self-hosted or cloud)
 - SMTP email account
-- Google Sheets API access
+- Google Sheets with OAuth2 access
 
 ## Implementation
 
