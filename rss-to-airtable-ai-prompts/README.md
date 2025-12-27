@@ -1,22 +1,19 @@
 # RSS to Airtable with AI Prompts
 
-This workflow automatically fetches articles from an RSS feed, extracts their content, generates structured prompts for ChatGPT to create LinkedIn posts, and stores everything in Airtable for easy content repurposing.
+**Version 1.0** | n8n Workflow for Content Repurposing Automation
 
-## Workflow Overview
+## Overview
 
-1. **RSS Feed Monitoring**: Monitors a specified RSS feed for new content
-2. **Content Extraction**: Extracts full article content from the source URL
-3. **AI Prompt Generation**: Creates structured prompts specifically formatted for ChatGPT
-4. **Airtable Integration**: Stores all data and AI prompts for later use with ChatGPT
+Turn RSS feeds into LinkedIn content ideas automatically. This workflow fetches articles, extracts content, generates ChatGPT-ready prompts, and stores everything in Airtable for easy content repurposing.
 
-## Important Note
+**What it does:**
 
-This workflow only creates and stores the prompts for ChatGPT - it does not automatically send them to ChatGPT or generate the final LinkedIn posts. After the workflow runs, you would:
+1. **RSS monitoring** – Watches your feed for new articles
+2. **Content extraction** – Pulls full article text via HTTP request
+3. **Prompt generation** – Creates structured ChatGPT prompts for LinkedIn posts
+4. **Airtable storage** – Logs articles and prompts for batch processing
 
-1. Go to your Airtable base
-2. Copy the generated prompt from the "LinkedIn Prompt" field
-3. Paste it into ChatGPT to generate your LinkedIn post
-4. Use the generated content for your social media
+**Note:** This workflow generates prompts only — you copy them from Airtable and paste into ChatGPT to create the final LinkedIn posts.
 
 ## Authentication Requirements
 

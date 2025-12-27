@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "https://feeds.feedburner.com/TechCrunch",
+        "url": "YOUR_RSS_FEED_URL",
         "options": {}
       },
       "id": "rss-trigger",
