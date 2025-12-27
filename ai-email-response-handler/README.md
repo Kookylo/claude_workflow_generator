@@ -1,18 +1,20 @@
 # AI Email Response Handler
 
-This automated workflow intelligently processes and responds to incoming emails from leads, using AI to analyze content, qualify leads, and generate personalized responses.
+**Version 1.0** | n8n Workflow for Intelligent Lead Response Automation
 
-## Features
+## Overview
 
-- **Email Monitoring**: Continuously checks for new incoming emails in your inbox
-- **Context Extraction**: Intelligently extracts relevant content from email threads
-- **AI-Powered Analysis**: Uses GPT-4 to analyze responses for sentiment, intent, and qualification criteria
-- **Automated Lead Qualification**: Scores leads based on budget, timeline, decision-making authority, and pain points
-- **Personalized Response Generation**: Creates contextually relevant, personalized email responses
-- **Google Sheets Integration**: Updates lead status and qualification data in your CRM spreadsheet
-- **Team Notifications**: Alerts your team via Slack when qualified leads respond
-- **Response Logging**: Maintains detailed logs of AI responses and qualification data
-- **Error Handling**: Includes robust error management and logging
+Stop manually responding to lead emails. This workflow monitors your inbox, uses GPT-4 to analyze replies, qualifies leads automatically, and sends personalized responses — all without human intervention.
+
+**What it does:**
+
+1. **IMAP monitoring** – Checks inbox every minute for new lead replies
+2. **Context extraction** – Pulls email content and thread history
+3. **AI qualification** – GPT-4 scores leads on budget, timeline, authority, pain points
+4. **Response generation** – Creates personalized replies addressing specific objections
+5. **CRM updates** – Logs qualification data to Google Sheets
+6. **Team alerts** – Notifies Slack when qualified leads respond
+7. **Email automation** – Sends AI response and marks original as read
 
 ## How It Works
 

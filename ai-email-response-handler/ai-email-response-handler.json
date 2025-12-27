@@ -22,7 +22,7 @@
       "position": [250, 300],
       "credentials": {
         "imap": {
-          "id": "3",
+          "id": "",
           "name": "IMAP Account"
         }
       }
@@ -80,7 +80,7 @@
       "position": [650, 300],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "1",
+          "id": "",
           "name": "Google Sheets Account"
         }
       }
@@ -114,7 +114,7 @@
       "position": [850, 300],
       "credentials": {
         "openAiApi": {
-          "id": "4",
+          "id": "",
           "name": "OpenAI Account"
         }
       }
@@ -147,7 +147,7 @@
       "position": [1250, 300],
       "credentials": {
         "smtp": {
-          "id": "2",
+          "id": "",
           "name": "SMTP Account"
         }
       }
@@ -258,7 +258,7 @@
       "position": [1450, 300],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "1",
+          "id": "",
           "name": "Google Sheets Account"
         }
       }
@@ -306,7 +306,7 @@
       "position": [1850, 200],
       "credentials": {
         "slackApi": {
-          "id": "5",
+          "id": "",
           "name": "Slack Account"
         }
       }
@@ -407,7 +407,7 @@
       "position": [1450, 500],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "1",
+          "id": "",
           "name": "Google Sheets Account"
         }
       }
@@ -424,7 +424,7 @@
       "position": [1650, 500],
       "credentials": {
         "gmailOAuth2": {
-          "id": "6",
+          "id": "",
           "name": "Gmail Account"
         }
       }
@@ -476,7 +476,7 @@
       "position": [850, 700],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "1",
+          "id": "",
           "name": "Google Sheets Account"
         }
       }
