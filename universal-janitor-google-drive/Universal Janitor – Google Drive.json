@@ -1,0 +1,1319 @@
+{
+  "name": "Universal Janitor – Google Drive",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        44
+      ],
+      "id": "0a0aebc9-ccf1-4e29-99a2-46d949389bdf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'root' in parents and trashed = false",
+        "limit": 500,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        44
+      ],
+      "id": "0aab4b94-281d-47f6-9d7c-05d15e6095fa",
+      "name": "List Root Files",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.name }}",
+                    "rightValue": "Idea",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "1c98a899-86a8-4b1b-bca8-8f0420da5495"
+                  },
+                  {
+                    "leftValue": "={{ $json.output?.category || $json.category }}",
+                    "rightValue": "_IDEAS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cat-ideas-001"
+                  },
+                  {
+                    "leftValue": "={{ $json.name }}",
+                    "rightValue": "Strategy",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "name-strategy-001"
+                  },
+                  {
+                    "leftValue": "={{ $json.name }}",
+                    "rightValue": "Plan",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "name-plan-001"
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Ideas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a7c4bc95-ef37-41ba-895f-8737d79a08fd",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "text/csv",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "cat-data-001",
+                    "leftValue": "={{ $json.output?.category || $json.category }}",
+                    "rightValue": "_DATA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-sheets-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.google-apps.spreadsheet",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-excel-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-json-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/json",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Data"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b99d452b-a782-4a32-a1b4-d5690be28fca",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "cat-docs-001",
+                    "leftValue": "={{ $json.output?.category || $json.category }}",
+                    "rightValue": "_DOCS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-gdoc-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.google-apps.document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-word-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-text-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "text/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  },
+                  {
+                    "id": "mime-gslides-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.google-apps.presentation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Docs"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "81457ee7-f737-469c-addc-a91d2d96f8f1",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/zip",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "cat-archives-001",
+                    "leftValue": "={{ $json.output?.category || $json.category }}",
+                    "rightValue": "_ARCHIVES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-rar-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/x-rar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-7z-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/x-7z-compressed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-tar-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/x-tar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Archives"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "56c5948b-fa4a-4e92-9931-9fe0fdec8086",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "image/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  },
+                  {
+                    "id": "cat-media-001",
+                    "leftValue": "={{ $json.output?.category || $json.category }}",
+                    "rightValue": "_MEDIA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "mime-video-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "video/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  },
+                  {
+                    "id": "mime-audio-001",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "audio/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "Media"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        128
+      ],
+      "id": "d5197a9f-d4b1-4bb6-8d33-f45099e58459",
+      "name": "Classify: Ideas / Data / Docs / Archives / Media"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{$json[\"id\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "REPLACE_WITH_YOUR_IDEAS_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "root"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        -288
+      ],
+      "id": "506a2c74-42ab-45b2-920a-98dd164482ee",
+      "name": "Move → _IDEAS",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{$json[\"id\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "REPLACE_WITH_YOUR_DATA_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "root"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        -96
+      ],
+      "id": "f6d947d0-cd45-4444-8a1f-905f5e4e69b5",
+      "name": "Move → _DATA",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{$json[\"id\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "REPLACE_WITH_YOUR_DOCS_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "root"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        96
+      ],
+      "id": "1f4baa45-5a2e-41e0-bd5f-5d83a0cee85a",
+      "name": "Move → _DOCS",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{$json[\"id\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "REPLACE_WITH_YOUR_ARCHIVES_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "root"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        288
+      ],
+      "id": "7cdd01c6-650f-4b97-b0d1-b9bfd4807f22",
+      "name": "Move → _ARCHIVES",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{$json[\"id\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "REPLACE_WITH_YOUR_MEDIA_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "root"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        480
+      ],
+      "id": "a71852a9-b66c-4e51-b3b9-c2c5be12736a",
+      "name": "Move → _MEDIA",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "20785815-e137-4611-8817-3ce5b6eaabb9",
+              "name": "note",
+              "value": "=Unsorted: {{$json[\"name\"]}} ({{$json[\"mimeType\"]}})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        672
+      ],
+      "id": "774c8e05-7de0-4ae5-a084-f1a1f15b0634",
+      "name": "Log Unsorted Files"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ecc858dc-750a-49ed-b1f0-895a459e218a",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "_",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "exclude-folders-001",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "application/vnd.google-apps.folder",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        44
+      ],
+      "id": "a43dcf51-5a4f-43b5-ad7c-ce08dd1faf46",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect generic filenames that need AI renaming\nconst genericPatterns = [\n  /^IMG_\\d+/i,           // IMG_1234\n  /^DSC_\\d+/i,           // DSC_5678  \n  /^image\\d+/i,          // image001\n  /^screenshot/i,        // Screenshot\n  /^screen shot/i,       // Screen Shot\n  /^download/i,          // download, download(1)\n  /^untitled/i,          // Untitled\n  /^file\\d+/i,           // file123\n  /^\\d+$/                // Just numbers: 12345678\n];\n\nfor (const item of $input.all()) {\n  const fileName = item.json.name || '';\n  const nameWithoutExt = fileName.replace(/\\.[^/.]+$/, ''); // Remove extension\n  \n  // Check if filename matches any generic pattern\n  const isGeneric = genericPatterns.some(pattern => pattern.test(nameWithoutExt));\n  \n  // Add flag for AI processing\n  item.json.needsAIRenaming = isGeneric;\n  item.json.originalName = fileName;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        44
+      ],
+      "id": "79a193b5-afa0-4d9b-ab7d-9c66cc74708e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "455e2e53-38da-4122-9c9d-5a3ae8b87421",
+              "leftValue": "={{ $json.needsAIRenaming }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        44
+      ],
+      "id": "11631264-08f3-495c-80c6-c638f3e0776e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Categorize this file and suggest a better name if needed:\n\nFilename: {{$json.name}}\nType: {{$json.mimeType}}\nNeeds Renaming: {{$json.needsAIRenaming}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You categorize files into folders. Output ONLY valid JSON.\n\nCATEGORIES (pick exactly one):\n- _IDEAS: Strategy, planning, brainstorming, concepts\n- _DATA: CSV, spreadsheets, JSON, datasets\n- _DOCS: PDFs, documents, text files, presentations\n- _ARCHIVES: ZIP, RAR, TAR, compressed files\n- _MEDIA: Images, videos, audio files\n\nRENAMING RULES:\n- If needsAIRenaming is true, suggest a descriptive name (lowercase, underscores, keep extension)\n- If needsAIRenaming is false, set suggestedName to null\n\nRESPOND WITH ONLY THIS JSON:\n{\"category\": \"_DOCS\", \"suggestedName\": null}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        192
+      ],
+      "id": "f00d994f-7f9e-4d8d-9464-445a2110fe3e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        416
+      ],
+      "id": "7c8cc4ef-6217-4de7-ac09-ac9fd4b87697",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"category\": \"_DOCS\",\n    \"suggestedName\": null\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        416
+      ],
+      "id": "86650395-aa7e-47b7-ae20-ec09d2560e3b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge AI Agent output with original file data from the If node\n// The AI only returns category and suggestedName - we get file info from the input\n\nconst results = [];\nconst items = $input.all();\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  \n  // Get AI output (may be nested in 'output' field from structured parser)\n  const aiOutput = item.json.output || item.json;\n  const category = aiOutput.category || '_DOCS';\n  let suggestedName = aiOutput.suggestedName;\n  \n  // Normalize suggestedName - handle various null representations\n  if (suggestedName === 'null' || suggestedName === '' || suggestedName === undefined) {\n    suggestedName = null;\n  }\n  \n  // Get original file data from the If node (which comes from Code in JavaScript)\n  // The AI Agent preserves the input data alongside its output\n  let fileId = item.json.id;\n  let fileName = item.json.name;\n  let fileMimeType = item.json.mimeType;\n  \n  // Fallback: try to get from the Code node directly\n  if (!fileId) {\n    try {\n      const codeItems = $('If').all();\n      if (codeItems[i]) {\n        fileId = codeItems[i].json.id;\n        fileName = codeItems[i].json.name;\n        fileMimeType = codeItems[i].json.mimeType;\n      }\n    } catch (e) {}\n  }\n  \n  // Second fallback: Code in JavaScript node\n  if (!fileId) {\n    try {\n      const codeItems = $('Code in JavaScript').all();\n      if (codeItems[i]) {\n        fileId = codeItems[i].json.id;\n        fileName = codeItems[i].json.name;\n        fileMimeType = codeItems[i].json.mimeType;\n      }\n    } catch (e) {}\n  }\n  \n  // Only add if we have a valid file ID\n  if (fileId) {\n    const needsRename = suggestedName !== null && suggestedName !== fileName;\n    results.push({\n      json: {\n        id: fileId,\n        name: fileName,\n        mimeType: fileMimeType,\n        category: category,\n        action: 'move',\n        suggestedName: suggestedName,\n        needsRenaming: needsRename\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        192
+      ],
+      "id": "merge-ai-output-001",
+      "name": "Merge AI Output"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "_IDEAS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ai-route-ideas"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ideas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "_DATA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ai-route-data"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Data"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "_DOCS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ai-route-docs"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Docs"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "_ARCHIVES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ai-route-archives"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Archives"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "_MEDIA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ai-route-media"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Media"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        350
+      ],
+      "id": "ai-router-001",
+      "name": "Route AI Categorized"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Duplicate Detection\n// Compare files by name and md5Checksum (if available) or name+size\n// Mark duplicates for deletion (keep the oldest/first one)\n\nconst items = $input.all();\nconst seen = new Map();\nconst results = [];\n\nfor (const item of items) {\n  const file = item.json;\n  \n  // Skip folders - they can't be duplicates\n  if (file.mimeType === 'application/vnd.google-apps.folder') {\n    file.isDuplicate = false;\n    results.push({ json: file });\n    continue;\n  }\n  \n  // Create a key: prefer md5Checksum, fallback to name+size\n  const key = file.md5Checksum || `${file.name}_${file.size || file.mimeType}`;\n  \n  if (seen.has(key)) {\n    // This is a duplicate\n    const original = seen.get(key);\n    // Compare modification times - keep the older one\n    const originalTime = new Date(original.modifiedTime || 0);\n    const currentTime = new Date(file.modifiedTime || 0);\n    \n    if (currentTime < originalTime) {\n      // Current file is older, mark the previous one as duplicate\n      original.isDuplicate = true;\n      original.duplicateOf = file.id;\n      file.isDuplicate = false;\n      seen.set(key, file);\n    } else {\n      // Current file is newer or same, mark it as duplicate\n      file.isDuplicate = true;\n      file.duplicateOf = original.id;\n    }\n  } else {\n    // First occurrence\n    file.isDuplicate = false;\n    seen.set(key, file);\n  }\n  \n  results.push({ json: file });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        44
+      ],
+      "id": "duplicate-detection-001",
+      "name": "Detect Duplicates"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "is-duplicate-check",
+              "leftValue": "={{ $json.isDuplicate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        -100
+      ],
+      "id": "duplicate-router-001",
+      "name": "Is Duplicate?"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json[\"id\"]}}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        784,
+        -200
+      ],
+      "id": "delete-duplicate-001",
+      "name": "Delete Duplicate",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-deleted-001",
+              "name": "note",
+              "value": "=Deleted duplicate: {{$json[\"name\"]}} (duplicate of {{$json[\"duplicateOf\"]}})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        -200
+      ],
+      "id": "log-deleted-001",
+      "name": "Log Deleted Duplicates"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json[\"id\"]}}",
+          "mode": "id"
+        },
+        "updateFields": {
+          "name": "={{$json[\"suggestedName\"]}}"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1400,
+        50
+      ],
+      "id": "rename-file-001",
+      "name": "Rename Generic File",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "needs-renaming-check",
+              "leftValue": "={{ $json.needsRenaming }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1550,
+        192
+      ],
+      "id": "needs-renaming-check-001",
+      "name": "Needs Renaming?"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "List Root Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Root Files": {
+      "main": [
+        [
+          {
+            "node": "Detect Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Is Duplicate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Duplicate?": {
+      "main": [
+        [
+          {
+            "node": "Delete Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Log Deleted Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify: Ideas / Data / Docs / Archives / Media": {
+      "main": [
+        [
+          {
+            "node": "Move → _IDEAS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _DOCS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _ARCHIVES",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _MEDIA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify: Ideas / Data / Docs / Archives / Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Output": {
+      "main": [
+        [
+          {
+            "node": "Needs Renaming?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Renaming?": {
+      "main": [
+        [
+          {
+            "node": "Rename Generic File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route AI Categorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Generic File": {
+      "main": [
+        [
+          {
+            "node": "Route AI Categorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route AI Categorized": {
+      "main": [
+        [
+          {
+            "node": "Move → _IDEAS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _DOCS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _ARCHIVES",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move → _MEDIA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Unsorted Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
