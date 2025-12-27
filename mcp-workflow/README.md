@@ -1,48 +1,109 @@
-# MCP Integration Workflow for n8n
+# MCP Integration Workflow
 
-This project provides a workflow configuration for integrating n8n with the Model Context Protocol (MCP) server.
+**Version 1.0** | n8n Workflow for Model Context Protocol Integration
 
-## What is this workflow?
+## Overview
 
-This workflow demonstrates how to:
-1. Connect to an MCP server using the MCP Server Trigger
-2. Process MCP requests
-3. Create n8n workflows dynamically
-4. Use the Workflow Coder node to generate workflow code
+Connect n8n to the Model Context Protocol (MCP) ecosystem. This workflow lets AI assistants like Claude trigger n8n workflows, process requests, and dynamically generate new workflows on demand.
 
-## How to use
+**What it does:**
 
-### Importing the workflow
+1. **MCP Server Trigger** – Listens for incoming MCP requests via SSE
+2. **Request processing** – Extracts and structures MCP payload data
+3. **Dynamic workflow creation** – Generates n8n workflows from AI instructions
+4. **Workflow Coder** – Converts natural language prompts into executable workflow code
 
-1. Open your n8n instance
-2. Go to Workflows
-3. Click on "Import from File"
-4. Select the `mcp-workflow.json` file
+## Workflow Logic
 
-### Configuration
+```
+MCP Server Trigger (SSE endpoint)
+    ↓
+Process MCP Request (extract payload)
+    ↓
+Create n8n Workflow (dynamic generation)
+    ↓
+Workflow Coder (AI-powered code generation)
+```
 
-You will need to update the following:
+## Setup Instructions
 
-1. In the MCP Server Trigger node:
-   - Verify the URL points to your MCP server
-   - Check the path is correct
+### 1. Import the Workflow
 
-2. In the Workflow Coder node:
-   - Ensure the workflow input is properly mapped
+Import `mcp-workflow.json` into your n8n instance.
 
-## Integration with external AI
+### 2. Configure MCP Server URL
 
-This workflow is designed to interact with Claude or other AI assistants through the MCP protocol. When a request comes in through the MCP Server Trigger, it will:
+Update the **MCP Server Trigger** node:
 
-1. Process the request data
-2. Create a new workflow based on the request
-3. Use the Workflow Coder to generate dynamic workflow code
+```
+url: YOUR_MCP_SERVER_URL/sse
+path: workflowmaster
+```
+
+Replace `YOUR_MCP_SERVER_URL` with your actual MCP server endpoint.
+
+### 3. Configure Workflow Coder
+
+The **Workflow Coder** node uses AI to generate workflow code. Ensure:
+- Workflow input is properly mapped from the payload
+- AI service (Claude) is configured in your MCP setup
+
+### 4. Test the Connection
+
+1. Start your MCP server
+2. Activate the workflow in n8n
+3. Send a test request from your AI assistant
+4. Verify the workflow processes and responds
+
+## Use Cases
+
+### AI-Driven Workflow Generation
+
+Ask Claude: "Create a workflow that fetches GitHub issues and posts to Slack"
+
+The MCP workflow will:
+1. Receive the request via MCP trigger
+2. Parse the natural language prompt
+3. Generate the workflow structure
+4. Return the executable n8n workflow JSON
+
+### Dynamic Automation
+
+Use MCP to:
+- Generate workflows on-the-fly based on user requests
+- Modify existing workflows programmatically
+- Create custom integrations without manual configuration
+
+## Requirements
+
+- n8n instance (self-hosted or cloud)
+- MCP server running and accessible
+- AI assistant with MCP support (Claude, etc.)
+- Network connectivity between n8n and MCP server
 
 ## Troubleshooting
 
-If the MCP tools aren't appearing:
-1. Verify your MCP server is running
-2. Check the MCP configuration in your Codeium config file
-3. Make sure the n8n node has connectivity to the MCP server
+### MCP Tools Not Appearing
 
-Remember that the Workflow Coder node needs a valid JSON workflow object to work properly.
+1. Verify MCP server is running: `curl YOUR_MCP_SERVER_URL/health`
+2. Check MCP configuration in your AI assistant settings
+3. Ensure n8n can reach the MCP server (firewall/network rules)
+
+### Workflow Coder Errors
+
+- Verify the payload contains valid workflow JSON
+- Check AI service credentials in MCP config
+- Review n8n logs for detailed error messages
+
+## Node Types Used
+
+| Node | Purpose |
+|------|---------|
+| MCP Server Trigger | SSE endpoint for MCP requests |
+| Function | Process and structure MCP payload |
+| n8n | Create workflows dynamically |
+| Workflow Coder | AI-powered code generation |
+
+## License
+
+MIT License - Feel free to modify and share!

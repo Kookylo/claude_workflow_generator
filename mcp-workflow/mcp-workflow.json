@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "https://codeshiftautomations.online/mcp/workflowmaster/sse",
+        "url": "YOUR_MCP_SERVER_URL/sse",
         "path": "workflowmaster",
         "authentication": "none"
       },
