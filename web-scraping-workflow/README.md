@@ -1,31 +1,18 @@
-# Web Scraping Workflow for n8n
+# Web Scraping Workflow
 
-This workflow provides a comprehensive web scraping solution with three main components, designed to extract data from websites efficiently while following modern web standards and best practices.
-
-## Table of Contents
-- [Overview](#overview)
-- [Workflow Components](#workflow-components)
-  - [1. Split into Items](#1-split-into-items)
-  - [2. Data Scraping](#2-data-scraping)
-  - [3. Handle Pagination](#3-handle-pagination)
-- [Technical Implementation](#technical-implementation)
-- [Installation Guide](#installation-guide)
-- [Configuration Options](#configuration-options)
-- [Usage Examples](#usage-examples)
-- [Performance Optimization](#performance-optimization)
-- [Security Considerations](#security-considerations)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+**Version 1.0** | n8n Workflow for Automated Data Extraction
 
 ## Overview
 
-This workflow demonstrates a modular approach to web scraping, handling the three most common scenarios:
+Extract data from any website without writing code. This workflow handles the three core web scraping patterns: splitting API responses, extracting HTML elements, and paginating through multi-page datasets.
 
-1. **Split into Items**: Extract and process data from HTTP responses
-2. **Data Scraping**: Extract specific elements from web pages using CSS selectors
-3. **Handle Pagination**: Navigate through multiple pages to collect complete datasets
+**What it does:**
 
-The workflow is built using n8n's latest node versions and follows best practices for web scraping, including rate limiting, error handling, and proper data extraction techniques.
+1. **Split into Items** – Break HTTP responses into individual records
+2. **Data Scraping** – Extract specific elements using CSS selectors
+3. **Handle Pagination** – Loop through pages until all data is collected
+
+Built with n8n's current node versions and production-ready patterns for rate limiting, error handling, and data extraction.
 
 ## Workflow Components
 
