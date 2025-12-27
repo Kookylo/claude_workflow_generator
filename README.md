@@ -1,29 +1,43 @@
 # n8n Workflow Templates & Resources
 
-A curated collection of professional n8n workflow templates and resources designed to automate business processes. These templates are built with modern best practices and can be imported directly into your n8n instance.
+**Production-ready n8n workflows with scrubbed credentials and comprehensive documentation.**
 
 ## About This Repository
 
-This repository contains a growing collection of ready-to-use n8n workflow templates that I've created to solve common business automation challenges. Each template is:
+This repository contains 13 battle-tested n8n workflow templates designed to automate business processes. Every workflow has been audited for security, scrubbed of credentials, and documented with the "Savvy Mentor" voice — practical, confident, and results-focused.
 
-- Fully documented with setup instructions
-- Designed following n8n best practices
-- Ready to import and use with minimal configuration
-- Built with error handling and reliability in mind
+**All workflows are:**
+- ✅ Credential-scrubbed and production-ready
+- ✅ Fully documented with setup instructions
+- ✅ Built with error handling and reliability
+- ✅ Ready to import with minimal configuration
 
-Whether you're looking to automate marketing, sales, data processing, or integrate AI into your workflows, you'll find useful resources here to accelerate your implementation.
+## Workflows by Category
 
-## Recent Workflows
+### 🤖 AI & Content Automation
 
-- **[Appointment Reminder System](workflows/harmony-spine-appointment-reminder.json)** - Automated Telegram reminders for upcoming appointments with Airtable integration
-- [Lead Nurture Email Sequence](lead-nurture-email-sequence/README.md) - Automated email follow-up system with a 14-day nurture sequence
-- [AI Email Response Handler](ai-email-response-handler/README.md) - Intelligent email reply analysis and automated lead qualification
-- [RSS to Airtable with AI Prompts](rss-to-airtable-ai-prompts/README.md) - Prepare RSS content for ChatGPT to create LinkedIn posts
-- [GitHub Issues to Slack Notification](github-slack-workflow/README.md) - Real-time notifications for new GitHub issues sent to Slack
-- [AI-Generated LinkedIn Posts](ai-linkedin-posts/README.md) - Create engaging LinkedIn content with AI assistance
-- [Blog with AI](blog-with-ai/README.md) - Streamline blog creation using AI tools
-- [Personalized AI Newsletter](ai-newsletter/README.md) - Create custom newsletters with AI-curated content
-- [Viral TikToks](viral-tiktoks/README.md) - Generate ideas and scripts for viral TikTok content
+- **[AI Blog Generator](ai-blog-generator/)** - Automated WordPress blog publishing with Gemini 2.0 Flash + GPT-4.1-mini + DALL-E
+- **[Article Knowledgebase Generator](article-knowledgebase-generator/)** - Multi-agent Writer/Editor loop with Perplexity deep research
+- **[LinkedIn Post Automation](linkedin-post-automation/)** - AI-generated posts with email approval workflow
+- **[Personalized AI Newsletter](personalized-ai-newsletter/)** - RSS-to-email tech digest with vector storage
+- **[RSS to Airtable with AI Prompts](rss-to-airtable-ai-prompts/)** - Content repurposing automation for LinkedIn
+- **[Viral TikToks Workflow](viral-tiktoks-workflow/)** - Clone viral content, generate scripts, create avatar videos
+
+### 📧 Email & Lead Management
+
+- **[AI Email Response Handler](ai-email-response-handler/)** - GPT-4 lead qualification and automated responses
+- **[Lead Nurture Email Sequence](lead-nurture-email-sequence/)** - 4-email sequence over 14 days with Google Sheets tracking
+
+### 🔗 Integrations & Notifications
+
+- **[GitHub Issues to Slack](github-slack-workflow/)** - Real-time issue notifications via webhook
+- **[HubSpot to Instantly Integration](n8n-hubspot-instantly-integration/)** - Sync contacts for cold email outreach
+- **[Harmony Spine Appointment Reminder](workflows/)** - Airtable + Telegram appointment reminders
+
+### 🛠️ Utilities & Infrastructure
+
+- **[MCP Integration Workflow](mcp-workflow/)** - Model Context Protocol integration for AI-driven workflow generation
+- **[Web Scraping Workflow](web-scraping-workflow/)** - Split, extract, and paginate data from any website
 
 ## How to Use These Templates
 
